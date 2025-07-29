@@ -354,14 +354,16 @@ function class:GetRaidLootList()
     for _, entry in ipairs(self.data.raidLoot) do
         local crest = self:GetCrestIconByKey(self.data.crestsByIdx[entry.crestIdx].key, true)
         table.insert(result, {
-            entry.name,
-            entry.ilvl1,
-            entry.ilvl2,
-            entry.ilvl3,
-            crest
+            name = entry.name,
+            ilvls =  entry.ilvls,
+            crest = crest
         })
     end
-    return result
+    
+    return {
+        bosses = self.data.raidLootIlvlsBosses,
+        data = result
+    }
 end
 
 function class:GetDungeonLootList()

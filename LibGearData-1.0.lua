@@ -6,6 +6,22 @@ if not lib then return end
 local _, ns = ...
 local L = ns.L
 
+ local dungeonsLevels  = {
+    PLAYER_DIFFICULTY2,
+    PLAYER_DIFFICULTY6,
+    2,
+    3, 
+    4,
+    5,
+    6,
+    7,
+    8,
+    9, 
+    10,
+    11,
+    12,
+}
+
 -- Simple data storage
 -- lib.data = nil
 -- lib.season = nil
@@ -14,6 +30,34 @@ ns.transformedSeasons = {} -- Store transformed seasons (lazy loaded)
 
 -- Cache for currency iconFileIDs
 local currencyIconCache = {}
+local function fillcrests(obj, crestsByIdx)
+    local neewObj = {}
+    if crestsByIdx then
+        for _, entry in ipairs(obj) do
+            local newEntry = {}
+            for k, v in pairs(entry) do
+                if k == "crests" then
+                    newEntry.crests = {}
+                    if type(v) == "table" then
+                        for _, idx in ipairs(v) do
+                            local crestObj = crestsByIdx[idx]
+                            table.insert(newEntry.crests, crestObj)
+                        end
+                    elseif type(v) == "number" then
+                        local crestObj = crestsByIdx[v]
+                        if crestObj then table.insert(newEntry.crests, crestObj) end
+                    end
+                else
+                    newEntry[k] = v
+                end
+            end
+            table.insert(neewObj, newEntry)
+        end
+    end
+
+    return neewObj or obj
+end
+
 
 local function transformSeasonData(data)
     -- Transform the season data into the expected format
@@ -155,8 +199,34 @@ local function transformSeasonData(data)
         transformedData.delvesLoot = data.delvesLoot
     end
     if data.raidLoot then
+         transformedData.raidLootIlvlsBosses = data.raidLootIlvlsBosses
         transformedData.raidLoot = data.raidLoot
     end
+    -- Übernehme neue Tabellen falls vorhanden
+    if data.dungeons then
+        transformedData.dungeons = fillcrests(data.dungeons, transformedData.crestsByIdx)
+        local levels = ns.dungeonsLevels or dungeonsLevels
+        for i, entry in ipairs(data.dungeons) do
+            local newEntry = {}
+            for k, v in pairs(entry) do newEntry[k] = v end
+            if levels and levels[i] then
+                newEntry.level = levels[i]
+            end
+            table.insert(transformedData.dungeons, newEntry)
+        end
+    end
+    if data.delves then
+        transformedData.delves = fillcrests(data.delves, transformedData.crestsByIdx)
+    end
+    if data.crafting then
+        transformedData.crafting = fillcrests(data.crafting, transformedData.crestsByIdx)
+    end
+    if data.raid then
+        transformedData.raid = fillcrests(data.raid, transformedData.crestsByIdx)
+    end
+
+
+    
     
     return transformedData
 end
@@ -168,6 +238,8 @@ function ns.getSeasonData(seasonKey)
     ns.transformedSeasons[seasonKey] = transformSeasonData(seasons[seasonKey])
     return ns.transformedSeasons[seasonKey]
 end
+
+
 
 
 local function isCurrentSeasonVersion(seasonData)
@@ -196,7 +268,7 @@ local function RegisterSeasonData(seasonKey, data)
     seasons[seasonKey] = data
     
     if not lib.data and isCurrentSeasonVersion(data) then
-        lib = ns.class.SetSeason(lib, 3, 11)
+        lib = ns.class.SetSeason(lib, data.season, data.expansion)
     end
 end
 
