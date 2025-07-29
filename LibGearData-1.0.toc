@@ -3,17 +3,17 @@
 ## Notes: Library for World of Warcraft gear track and crest data
 ## Author: muhmiauwau
 ## Version: 1.0
-## LoadOnDemand: 1
 
 ## X-Category: Library
-## X-License: All Rights Reserved
+## X-License: MIT
 ## X-Curse-Project-ID: 
 ## X-Wago-ID: 
 
-libs\LibStub\LibStub.lua
 
 LibGearData-1.0.lua
 
-data\11_season_3.lua
+data/11_season_3.lua
 
+
+test/test.lua
 

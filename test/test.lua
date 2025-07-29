@@ -3,6 +3,17 @@ local LibGearData = LibStub("LibGearData-1.0")
 local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_LOGIN")
 f:SetScript("OnEvent", function()
+    -- Test der Season-Daten-Transformation
+    DevTool:AddData(LibGearData.data, "Transformierte Season-Daten")
+    
+    -- Test der Tracks
+    local tracks = LibGearData:GetTracks()
+    DevTool:AddData(tracks, "Verfügbare Tracks")
+    
+    -- Test der Crests
+    local crests = LibGearData:GetCrests()
+    DevTool:AddData(crests, "Verfügbare Crests")
+    
      -- Beispiel: explizit Season setzen (z.B. Season 2 der aktuellen Erweiterung)
     local season2 = LibGearData:SetSeason(2)
     DevTool:AddData(season2:getCurrentSeason(), "Aktive Season nach SetSeason(2)")

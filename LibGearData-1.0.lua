@@ -2,286 +2,508 @@ local MAJOR, MINOR = "LibGearData-1.0", 1
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
--- Season data storage
-local seasonData = {}
-local currentSeason = "11.3" -- Default to current season
-local currencyCache = {}
+local _, ns = ...
+local L = ns.L
 
-local function SafeGetCurrencyInfo(id)
-    if currencyCache[id] then return currencyCache[id] end
-    local info = C_CurrencyInfo.GetCurrencyInfo(id)
-    if info and info.iconFileID and info.name then
-        currencyCache[id] = info
-        return info
+-- Simple data storage
+lib.data = nil
+lib.season = nil
+
+-- Public API for registering season data
+function lib:RegisterSeasonData(seasonKey, data)
+    if type(seasonKey) ~= "string" or type(data) ~= "table" then
+        error("Invalid season data registration", 2)
     end
-    local fallback = { iconFileID = 134400, name = "?" }
-    currencyCache[id] = fallback
-    return fallback
+
+    -- Transform the season data into the expected format
+    local transformedData = {
+        name = data.name,
+        version = data.version,
+        validFrom = data.validFrom,
+        validTo = data.validTo,
+        versionPrefix = data.versionPrefix,
+        tracks = {},
+        crests = {},
+        itemLevels = {},
+        tracksByIndex = {} -- For backwards compatibility with track indices
+    }
+    
+    -- Transform tracks array to indexed array (preserve order)
+    if data.tracks then
+        for i, track in ipairs(data.tracks) do
+            local trackName = track.name
+            transformedData.tracks[i] = {
+                name = trackName,
+                maxRank = track.maxRank,
+                itemLevels = {} -- Will be populated below
+            }
+            -- Store index to name mapping for convenience
+            transformedData.tracksByIndex[i] = trackName
+        end
+    end
+    
+    -- Transform crests array to map with crest names as keys
+    if data.crests then
+        for i, crest in ipairs(data.crests) do
+            transformedData.crests[crest.name] = {
+                name = crest.name,
+                currency = crest.currency
+            }
+        end
+    end
+    
+    -- Transform the data mapping (ilvl -> track info) to itemLevels format
+    -- and populate track itemLevels arrays
+    if data.data then
+        for ilvl, itemData in pairs(data.data) do
+            local ilvlNum = tonumber(ilvl)
+            if ilvlNum then
+                -- Convert crest index to crest name
+                local crestName = nil
+                if itemData.crest and data.crests and data.crests[itemData.crest] then
+                    crestName = data.crests[itemData.crest].name
+                end
+                
+                -- Prepare track information with full details
+                local trackDetails = {}
+                if itemData.tracks then
+                    for _, trackInfo in ipairs(itemData.tracks) do
+                        local trackIndex, rank = trackInfo[1], trackInfo[2]
+                        if data.tracks and data.tracks[trackIndex] then
+                            local trackName = data.tracks[trackIndex].name
+                            local maxRank = data.tracks[trackIndex].maxRank
+                            table.insert(trackDetails, {
+                                index = trackIndex,
+                                name = trackName,
+                                rank = rank,
+                                maxRank = maxRank,
+                                str = string.format("%s %d/%d", trackName, rank, maxRank)
+                            })
+                        end
+                    end
+                end
+                
+                -- Get highest track for convenience
+                local highestTrack = nil
+                if #trackDetails > 0 then
+                    highestTrack = trackDetails[#trackDetails]
+                end
+                
+                -- Store item level data with all pre-computed information
+                transformedData.itemLevels[ilvlNum] = {
+                    ilvl = ilvlNum,
+                    tracks = itemData.tracks, -- Original track indices for backwards compatibility
+                    trackDetails = trackDetails, -- Full track information
+                    highestTrack = highestTrack, -- Highest track for convenience
+                    crest = crestName, -- Upgrade currency name
+                    upgradeCurrency = crestName -- Alias for upgrade currency
+                }
+                
+                -- Populate track itemLevels arrays
+                for i, trackDetail in ipairs(trackDetails) do
+                    local trackIndex, rank = trackDetail.index, trackDetail.rank
+                    if transformedData.tracks[trackIndex] then
+                        transformedData.tracks[trackIndex].itemLevels[rank] = ilvlNum
+                    end
+                end
+            end
+        end
+    end
+    
+    self.data = transformedData
 end
 
--- Build crest icons for a season
-local function BuildCrestIcons(season)
-    if not seasonData[season] or not seasonData[season].crests then return {}, {} end
-    
-    local crestIcons = {}
-    local crestIconsWithNames = {}
-    
-    for crestKey, config in pairs(seasonData[season].crests) do
-        local currencyInfo = SafeGetCurrencyInfo(config.currencyId)
-        crestIcons[crestKey] = "|T"..currencyInfo.iconFileID..":12|t"
-        crestIconsWithNames[crestKey] = "|T"..currencyInfo.iconFileID..":12|t " .. currencyInfo.name
+function lib:SetSeason(season, expansion)
+    if type(season) ~= "number" or season < 1 then
+        error("Invalid season number", 2)
     end
     
-    return crestIcons, crestIconsWithNames
+    if expansion and (type(expansion) ~= "number" or expansion < 1) then
+        error("Invalid expansion number", 2)
+    end
+    
+    self.season = {
+        season = season,
+        expansion = expansion or math.floor(select(4, GetBuildInfo()) / 10000)
+    }
+    
+    return self
 end
 
---- Register season data
--- @param seasonId string The season identifier (e.g. "11.3")
--- @param data table The season data containing crests, maxRanks, and item level data
-function lib:RegisterSeasonData(seasonId, data)
-    seasonData[seasonId] = data
-    -- Build icons for this season
-    seasonData[seasonId].crestIcons, seasonData[seasonId].crestIconsWithNames = BuildCrestIcons(seasonId)
+function lib:getCurrentSeason()
+    return self.season
 end
 
---- Check if a season is valid for the current WoW version
--- @param seasonId string The season identifier
--- @param wowVersion number Optional WoW interface version (defaults to current)
--- @return boolean True if season is valid for this version
-function lib:IsSeasonValid(seasonId, wowVersion)
-    local season = seasonData[seasonId]
-    if not season then return false end
-    
-    local version = wowVersion or select(4, GetBuildInfo())
-    
-    -- Check version range
-    if season.validFrom and version < season.validFrom then
-        return false
-    end
-    if season.validTo and version >= season.validTo then
-        return false
-    end
-    
-    -- Check version prefix
-    if season.versionPrefix then
-        local versionStr = tostring(version)
-        return versionStr:sub(1, #season.versionPrefix) == season.versionPrefix
-    end
-    
-    return true
+-- Helper functions
+local function validateItemLevel(ilvl)
+    return type(ilvl) == "number" and ilvl > 0
 end
 
---- Get the valid season for current WoW version
--- @param wowVersion number Optional WoW interface version (defaults to current)
--- @return string|nil Season identifier or nil if none found
-function lib:GetValidSeasonForVersion(wowVersion)
-    local version = wowVersion or select(4, GetBuildInfo())
+local function validateTrackName(trackName)
+    return type(trackName) == "string" and trackName ~= ""
+end
+
+-- Helper function to get track name by index (for backwards compatibility)
+local function getTrackNameByIndex(self, index)
+    if not self.data or not self.data.tracksByIndex then return nil end
+    return self.data.tracksByIndex[index]
+end
+
+-- Public API Methods
+
+function lib:GetTracksByItemLevel(ilvl)
+    if not validateItemLevel(ilvl) then return nil end
+    if not self.data then return nil end
     
-    for seasonId in pairs(seasonData) do
-        if self:IsSeasonValid(seasonId, version) then
-            return seasonId
+    local itemData = self.data.itemLevels and self.data.itemLevels[ilvl]
+    return itemData and itemData.tracks or nil
+end
+
+function lib:GetCrestByItemLevel(ilvl)
+    if not validateItemLevel(ilvl) then return nil end
+    if not self.data then return nil end
+    
+    local itemData = self.data.itemLevels and self.data.itemLevels[ilvl]
+    return itemData and itemData.crest or nil
+end
+
+function lib:GetTracks()
+    if not self.data then return {} end
+    
+    return self.data.tracks
+end
+
+function lib:GetTrack(trackIdentifier)
+    if not self.data then return nil end
+    
+    -- Support both index (number) and name (string)
+    if type(trackIdentifier) == "number" then
+        return self.data.tracks and self.data.tracks[trackIdentifier] or nil
+    elseif type(trackIdentifier) == "string" and trackIdentifier ~= "" then
+        -- Find track by name
+        for i, track in pairs(self.data.tracks or {}) do
+            if track.name == trackIdentifier then
+                return track
+            end
+        end
+    end
+    
+    return nil
+end
+
+function lib:GetTrackNameByIndex(index)
+    return getTrackNameByIndex(self, index)
+end
+
+function lib:GetUpgradeOptions(ilvl)
+    if not validateItemLevel(ilvl) then return nil end
+    
+    local tracks = self:GetTracksByItemLevel(ilvl)
+    if not tracks then return nil end
+    
+    local options = {}
+    for _, trackInfo in ipairs(tracks) do
+        local trackIndex, rank = trackInfo[1], trackInfo[2]
+        local track = self:GetTrack(trackIndex)
+        if track and rank < track.maxRank then
+            local trackName = track.name
+            local maxRank = track.maxRank
+            table.insert(options, {
+                track = trackName,
+                rank = rank,
+                max = maxRank,
+                str = string.format("%s %d/%d", trackName, rank, maxRank),
+                nextRank = rank + 1,
+                nextItemLevel = track.itemLevels[rank + 1]
+            })
+        end
+    end
+    return #options > 0 and options or nil
+end
+
+function lib:GetNextUpgrade(ilvl)
+    local options = self:GetUpgradeOptions(ilvl)
+    if not options then return nil end
+    
+    -- Return the lowest next upgrade
+    local nextUpgrade = nil
+    for _, option in ipairs(options) do
+        if not nextUpgrade or option.nextItemLevel < nextUpgrade.itemLevel then
+            nextUpgrade = {
+                track = option.track,
+                rank = option.nextRank,
+                max = option.max,
+                str = string.format("%s %d/%d", option.track, option.nextRank, option.max),
+                itemLevel = option.nextItemLevel
+            }
+        end
+    end
+    return nextUpgrade
+end
+
+function lib:GetMaxUpgrade(ilvl, trackName)
+    if not validateItemLevel(ilvl) or not validateTrackName(trackName) then return nil end
+    
+    local track = self:GetTrack(trackName)
+    if not track then return nil end
+    
+    local tracks = self:GetTracksByItemLevel(ilvl)
+    if not tracks then return nil end
+    
+    -- Check if this item level exists in the specified track
+    for _, trackInfo in ipairs(tracks) do
+        local trackIndex = trackInfo[1]
+        local trackAtIndex = self:GetTrack(trackIndex)
+        if trackAtIndex and trackAtIndex.name == trackName then
+            return track.itemLevels[track.maxRank]
         end
     end
     return nil
 end
 
---- Auto-set current season based on WoW version
--- @return boolean True if a valid season was found and set
-function lib:AutoSetCurrentSeason()
-    local validSeason = self:GetValidSeasonForVersion()
-    if validSeason then
-        currentSeason = validSeason
-        return true
-    end
-    return false
-end
-
---- Set the current active season
--- @param seasonId string The season identifier
--- @return boolean True if season exists and was set
-function lib:SetCurrentSeason(seasonId)
-    if seasonData[seasonId] then
-        currentSeason = seasonId
-        return true
-    end
-    return false
-end
-
---- Get the current active season
--- @return string The current season identifier
-function lib:GetCurrentSeason()
-    return currentSeason
-end
-
---- Get the current season based on WoW version (auto-detect)
--- @param wowVersion number Optional WoW interface version (defaults to current)
--- @return string|nil The current season for this version or nil if none found
-function lib:GetCurrentSeasonForVersion(wowVersion)
-    return self:GetValidSeasonForVersion(wowVersion)
-end
-
---- Get all available seasons
--- @param onlyValid boolean Optional, only return seasons valid for current version
--- @return table Array of season identifiers
-function lib:GetAvailableSeasons(onlyValid)
-    local seasons = {}
-    for seasonId in pairs(seasonData) do
-        if not onlyValid or self:IsSeasonValid(seasonId) then
-            table.insert(seasons, seasonId)
-        end
-    end
-    table.sort(seasons)
-    return seasons
-end
-
--- Public API Functions
-
---- Get tracks for a specific item level
--- @param ilvl number The item level to lookup
--- @param seasonId string Optional season identifier (defaults to current)
--- @return table|nil Array of tracks {{"TrackName", rank}, ...} or nil if not found
-function lib:GetTracksByItemLevel(ilvl, seasonId)
-    local season = seasonId or currentSeason
-    local data = seasonData[season] and seasonData[season].data
-    if not data or not data[ilvl] then return nil end
-    return data[ilvl].tracks or nil
-end
-
---- Get crest type for a specific item level
--- @param ilvl number The item level to lookup
--- @param seasonId string Optional season identifier (defaults to current)
--- @return string|nil The crest type ("weathered", "carved", "runed", "gilded") or nil
-function lib:GetCrestByItemLevel(ilvl, seasonId)
-    local season = seasonId or currentSeason
-    local data = seasonData[season] and seasonData[season].data
-    if not data or not data[ilvl] then return nil end
-    return data[ilvl].crest or nil
-end
-
---- Get crest icon by crest key
--- @param key string The crest key ("weathered", "carved", "runed", "gilded")
--- @param withName boolean Include the name text after the icon
--- @param seasonId string Optional season identifier (defaults to current)
--- @return string|nil The formatted icon string or nil if not found
-function lib:GetCrestIconByKey(key, withName, seasonId)
-    local season = seasonId or currentSeason
-    local seasonInfo = seasonData[season]
-    if not seasonInfo then return nil end
+function lib:GetHighestTrack(ilvl)
+    local tracks = self:GetTracksByItemLevel(ilvl)
+    if not tracks or #tracks == 0 then return nil end
     
-    local icons = withName and seasonInfo.crestIconsWithNames or seasonInfo.crestIcons
-    return icons and icons[key] or nil
-end
-
---- Get the maximum rank for a specific track
--- @param trackName string The track name ("Explorer", "Adventurer", etc.)
--- @param seasonId string Optional season identifier (defaults to current)
--- @return number The maximum rank for this track (default: 8)
-function lib:GetMaxRankForTrack(trackName, seasonId)
-    local season = seasonId or currentSeason
-    local maxRanks = seasonData[season] and seasonData[season].maxRanks
-    if not maxRanks then return 8 end
-    return maxRanks[trackName] or 8
-end
-
---- Get the highest track information for an item level
--- @param ilvl number The item level to lookup
--- @param seasonId string Optional season identifier (defaults to current)
--- @return table|nil Table with track info {name, rank, maxRank} or nil
-function lib:GetHighestTrackInfo(ilvl, seasonId)
-    local season = seasonId or currentSeason
-    local data = seasonData[season] and seasonData[season].data
-    if not data then return nil end
+    -- Return the last (highest) track with full info
+    local highest = tracks[#tracks]
+    local trackIndex, rank = highest[1], highest[2]
+    local track = self:GetTrack(trackIndex)
+    local trackName = track and track.name or "unknown"
+    local maxRank = track and track.maxRank or 0
     
-    local tracks = data[ilvl] and data[ilvl].tracks
-    if not tracks or #tracks == 0 then
+    return {
+        track = trackName,
+        rank = rank,
+        max = maxRank,
+        str = string.format("%s %d/%d", trackName, rank, maxRank)
+    }
+end
+
+function lib:GetHighestTrackString(ilvl)
+    local tracks = self:GetTracksByItemLevel(ilvl)
+    if not tracks or #tracks == 0 then return "unknown" end
+    
+    local highest = tracks[#tracks]
+    local trackIndex, rank = highest[1], highest[2]
+    local track = self:GetTrack(trackIndex)
+    if not track then return "unknown" end
+    
+    local localizedName = self:GetTrackName(track.name)
+    local maxRank = track.maxRank
+    
+    return string.format("%s %d/%d", localizedName, rank, maxRank)
+end
+
+function lib:GetCrests()
+    if not self.data then return {} end
+    
+    local crests = {}
+    for crestName, _ in pairs(self.data.crests or {}) do
+        table.insert(crests, crestName)
+    end
+    table.sort(crests)
+    return crests
+end
+
+function lib:GetCrest(crestName)
+    if not crestName or type(crestName) ~= "string" then return nil end
+    if not self.data then return nil end
+    
+    return self.data.crests and self.data.crests[crestName] or nil
+end
+
+function lib:GetRequiredCrest(fromIlvl, toIlvl)
+    if not validateItemLevel(fromIlvl) or not validateItemLevel(toIlvl) then return nil end
+    if toIlvl <= fromIlvl then return nil end
+    
+    return self:GetCrestByItemLevel(toIlvl)
+end
+
+function lib:GetTrackRank(ilvl)
+    local tracks = self:GetTracksByItemLevel(ilvl)
+    if not tracks or #tracks == 0 then return nil end
+    
+    local result = {}
+    for _, trackInfo in ipairs(tracks) do
+        local trackIndex = trackInfo[1]
+        local rank = trackInfo[2]
+        local track = self:GetTrack(trackIndex)
+        local trackName = track and track.name or "unknown"
+        local maxRank = track and track.maxRank or 0
+        
+        table.insert(result, {
+            track = trackName,
+            rank = rank,
+            max = maxRank,
+            str = string.format("%s %d/%d", trackName, rank, maxRank)
+        })
+    end
+    return result
+end
+
+function lib:GetItemLevel(trackName, rank)
+    if not validateTrackName(trackName) or not rank or type(rank) ~= "number" or rank < 1 then
         return nil
     end
     
-    local highest = tracks[#tracks]
-    return {
-        name = highest[1],
-        rank = highest[2],
-        maxRank = self:GetMaxRankForTrack(highest[1], season)
-    }
-end
-
---- Get all available item levels
--- @param seasonId string Optional season identifier (defaults to current)
--- @return table Array of all item levels that have data
-function lib:GetAllItemLevels(seasonId)
-    local season = seasonId or currentSeason
-    local data = seasonData[season] and seasonData[season].data
-    if not data then return {} end
-    
-    local levels = {}
-    for ilvl in pairs(data) do
-        table.insert(levels, ilvl)
+    local track = self:GetTrack(trackName)
+    if not track or not track.itemLevels or rank > track.maxRank then
+        return nil
     end
-    table.sort(levels)
-    return levels
+    
+    return track.itemLevels[rank]
 end
 
---- Get all available crest types
--- @param seasonId string Optional season identifier (defaults to current)
--- @return table Array of crest type strings
-function lib:GetAllCrestTypes(seasonId)
-    local season = seasonId or currentSeason
-    local crests = seasonData[season] and seasonData[season].crests
-    if not crests then return {} end
+-- Flexible data extraction function
+function lib:GetItemLevelData(...)
+    local columns = {...}
+    if not self.data or not self.data.itemLevels then return {} end
     
-    local types = {}
-    for crestKey in pairs(crests) do
-        table.insert(types, crestKey)
+    local result = {}
+    
+    for ilvl, itemData in pairs(self.data.itemLevels) do
+        local row = {}
+        
+        for _, column in ipairs(columns) do
+            if column == "ilvl" then
+                row.ilvl = itemData.ilvl
+            elseif column == "crest" or column == "upgradeCurrency" then
+                row.crest = itemData.crest
+                row.upgradeCurrency = itemData.upgradeCurrency
+            elseif column == "track" then
+                -- Return highest track for backwards compatibility
+                row.track = itemData.highestTrack
+            elseif column == "tracks" then
+                -- Return all track details
+                row.tracks = itemData.trackDetails
+            elseif column == "highest_track" then
+                -- Return highest track
+                row.highest_track = itemData.highestTrack
+            end
+        end
+        
+        table.insert(result, row)
     end
-    table.sort(types)
-    return types
+    
+    -- Sort by item level
+    table.sort(result, function(a, b) return a.ilvl < b.ilvl end)
+    
+    return result
 end
 
---- Get item levels for a specific crest type
--- @param crestType string The crest type to search for
--- @param seasonId string Optional season identifier (defaults to current)
--- @return table Array of item levels that use this crest type
-function lib:GetItemLevelsByCrest(crestType, seasonId)
-    local season = seasonId or currentSeason
-    local data = seasonData[season] and seasonData[season].data
-    if not data then return {} end
+-- Get all item level data (pre-computed during RegisterSeasonData)
+function lib:GetAllItemLevelData()
+    if not self.data or not self.data.itemLevels then return {} end
     
-    local levels = {}
-    for ilvl, info in pairs(data) do
-        if info.crest == crestType then
-            table.insert(levels, ilvl)
+    local result = {}
+    for ilvl, itemData in pairs(self.data.itemLevels) do
+        table.insert(result, itemData)
+    end
+    
+    -- Sort by item level
+    table.sort(result, function(a, b) return a.ilvl < b.ilvl end)
+    
+    return result
+end
+
+function lib:IsValidUpgrade(fromIlvl, toIlvl)
+    if not validateItemLevel(fromIlvl) or not validateItemLevel(toIlvl) then return false end
+    if toIlvl <= fromIlvl then return false end
+    
+    local requiredCrest = self:GetRequiredCrest(fromIlvl, toIlvl)
+    return requiredCrest ~= nil
+end
+
+function lib:CanUpgradeWithCrest(ilvl, crestName)
+    if not validateItemLevel(ilvl) or not crestName then return false end
+    
+    -- Get the actual next upgrade level dynamically
+    local nextUpgrade = self:GetNextUpgrade(ilvl)
+    if not nextUpgrade then return false end
+    
+    local requiredCrest = self:GetCrestByItemLevel(nextUpgrade.itemLevel)
+    return requiredCrest == crestName
+end
+
+function lib:GetItemLevels(trackName)
+    if not validateTrackName(trackName) then return nil end
+    
+    local track = self:GetTrack(trackName)
+    if not track or not track.itemLevels then return nil end
+    
+    return track.itemLevels
+end
+
+function lib:GetItemLevelsWithCrest(crestName)
+    if not crestName or type(crestName) ~= "string" then return nil end
+    if not self.data then return nil end
+    
+    local result = {}
+    for ilvl, itemData in pairs(self.data.itemLevels or {}) do
+        if itemData.crest == crestName then
+            table.insert(result, ilvl)
         end
     end
-    table.sort(levels)
-    return levels
+    
+    table.sort(result)
+    return #result > 0 and result or nil
 end
 
---- Check if an item level exists in the data
--- @param ilvl number The item level to check
--- @param seasonId string Optional season identifier (defaults to current)
--- @return boolean True if the item level has data
-function lib:HasItemLevel(ilvl, seasonId)
-    local season = seasonId or currentSeason
-    local data = seasonData[season] and seasonData[season].data
-    return data and data[ilvl] ~= nil
+function lib:GetSeason()
+    return self:getCurrentSeason()
 end
 
---- Get season info
--- @param seasonId string Optional season identifier (defaults to current)
--- @return table|nil Season info {name, version, crests, maxRanks, validFrom, validTo, isValid} or nil
-function lib:GetSeasonInfo(seasonId)
-    local season = seasonId or currentSeason
-    local info = seasonData[season]
-    if not info then return nil end
+function lib:GetSeasonTracks()
+    return self:GetTracks()
+end
+
+function lib:GetSeasonCrests()
+    return self:GetCrests()
+end
+
+-- Localization methods
+function lib:GetTrackName(trackName)
+    if not validateTrackName(trackName) then return trackName end
+    return L and L[trackName] or trackName
+end
+
+function lib:GetCrestName(crestName)
+    if not crestName or type(crestName) ~= "string" then return crestName end
+    return L and L[crestName] or crestName
+end
+
+function lib:GetTrackNames()
+    local tracks = self:GetTracks()
+    local result = {}
+    for i, track in pairs(tracks) do
+        if track and track.name then
+            result[track.name] = self:GetTrackName(track.name)
+        end
+    end
+    return result
+end
+
+function lib:GetCrestNames()
+    local crests = self:GetCrests()
+    local result = {}
+    for _, crestName in ipairs(crests) do
+        result[crestName] = self:GetCrestName(crestName)
+    end
+    return result
+end
+
+
+
+function lib:GetSeasons()
+    if not self.season then return {} end
     
     return {
-        name = info.name,
-        version = info.version,
-        crests = info.crests,
-        maxRanks = info.maxRanks,
-        validFrom = info.validFrom,
-        validTo = info.validTo,
-        versionPrefix = info.versionPrefix,
-        isValid = self:IsSeasonValid(season)
+        {
+            expansion = self.season.expansion,
+            season = self.season.season,
+            key = string.format("%d_%d", self.season.expansion, self.season.season)
+        }
     }
 end
+
