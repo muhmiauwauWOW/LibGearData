@@ -11,52 +11,50 @@ LibGearData:RegisterSeasonData("11.3", {
     
     -- Alternative: version prefix matching
     -- versionPrefix = "1102", -- matches 11.0.2.x
-    
-    -- Crest configuration for this season
+
+    tracks = {
+        { name = "Explorer", maxRank = 8 },
+        { name = "Adventurer", maxRank = 8 },
+        { name = "Veteran", maxRank = 8 },
+        { name = "Champion", maxRank = 8 },
+        { name = "Hero", maxRank = 6 },
+        { name = "Myth", maxRank = 6 }
+    },
+
     crests = {
-        weathered = {currencyId = 3285},
-        carved = {currencyId = 3287},
-        runed = {currencyId = 3289},
-        gilded = {currencyId = 3290}
+        { name = "weathered", currency = 3285 },
+        { name = "carved", currency = 3287 },
+        { name = "runed", currency = 3289 },
+        { name = "gilded", currency = 3290 }
     },
     
-    -- Track max ranks for this season
-    maxRanks = {
-        Explorer = 8,
-        Adventurer = 8,
-        Veteran = 8,
-        Champion = 8,
-        Hero = 6,
-        Myth = 6
-    },
-    
-    -- Item level data
+
     data = {
-        [642] = {tracks = {{"Explorer", 1}}},
-        [645] = {tracks = {{"Explorer", 2}}},
-        [649] = {tracks = {{"Explorer", 3}}},
-        [652] = {tracks = {{"Explorer", 4}}},
-        [655] = {tracks = {{"Explorer", 5}, {"Adventurer", 1}}},
-        [658] = {tracks = {{"Explorer", 6}, {"Adventurer", 2}}},
-        [662] = {tracks = {{"Explorer", 7}, {"Adventurer", 3}}},
-        [665] = {tracks = {{"Explorer", 8}, {"Adventurer", 4}}},
-        [668] = {crest = "weathered", tracks = {{"Adventurer", 5}, {"Veteran", 1}}},
-        [671] = {crest = "weathered", tracks = {{"Adventurer", 6}, {"Veteran", 2}}},
-        [675] = {crest = "weathered", tracks = {{"Adventurer", 7}, {"Veteran", 3}}},
-        [678] = {crest = "weathered", tracks = {{"Adventurer", 8}, {"Veteran", 4}}},
-        [681] = {crest = "carved", tracks = {{"Veteran", 5}, {"Champion", 1}}},
-        [684] = {crest = "carved", tracks = {{"Veteran", 6}, {"Champion", 2}}},
-        [688] = {crest = "carved", tracks = {{"Veteran", 7}, {"Champion", 3}}},
-        [691] = {crest = "carved", tracks = {{"Veteran", 8}, {"Champion", 4}}},
-        [694] = {crest = "runed", tracks = {{"Champion", 5}, {"Hero", 1}}},
-        [697] = {crest = "runed", tracks = {{"Champion", 6}, {"Hero", 2}}},
-        [701] = {crest = "runed", tracks = {{"Champion", 7}, {"Hero", 3}}},
-        [704] = {crest = "runed", tracks = {{"Champion", 8}, {"Hero", 4}}},
-        [707] = {crest = "gilded", tracks = {{"Hero", 5}, {"Myth", 1}}},
-        [710] = {crest = "gilded", tracks = {{"Hero", 6}, {"Myth", 2}}},
-        [714] = {crest = "gilded", tracks = {{"Myth", 3}}},
-        [717] = {crest = "gilded", tracks = {{"Myth", 4}}},
-        [720] = {crest = "gilded", tracks = {{"Myth", 5}}},
-        [723] = {crest = "gilded", tracks = {{"Myth", 6}}}
+        [642] = {tracks = {{1, 1}}},
+        [645] = {tracks = {{1, 2}}},
+        [649] = {tracks = {{1, 3}}},
+        [652] = {tracks = {{1, 4}}},
+        [655] = {tracks = {{1, 5}, {2, 1}}},
+        [658] = {tracks = {{1, 6}, {2, 2}}},
+        [662] = {tracks = {{1, 7}, {2, 3}}},
+        [665] = {tracks = {{1, 8}, {2, 4}}},
+        [668] = {crest = 1, tracks = {{2, 5}, {3, 1}}},
+        [671] = {crest = 1, tracks = {{2, 6}, {3, 2}}},
+        [675] = {crest = 1, tracks = {{2, 7}, {3, 3}}},
+        [678] = {crest = 1, tracks = {{2, 8}, {3, 4}}},
+        [681] = {crest = 2, tracks = {{3, 5}, {4, 1}}},
+        [684] = {crest = 2, tracks = {{3, 6}, {4, 2}}},
+        [688] = {crest = 2, tracks = {{3, 7}, {4, 3}}},
+        [691] = {crest = 2, tracks = {{3, 8}, {4, 4}}},
+        [694] = {crest = 3, tracks = {{4, 5}, {5, 1}}},
+        [697] = {crest = 3, tracks = {{4, 6}, {5, 2}}},
+        [701] = {crest = 3, tracks = {{4, 7}, {5, 3}}},
+        [704] = {crest = 3, tracks = {{4, 8}, {5, 4}}},
+        [707] = {crest = 4, tracks = {{5, 5}, {6, 1}}},
+        [710] = {crest = 4, tracks = {{5, 6}, {6, 2}}},
+        [714] = {crest = 4, tracks = {{6, 3}}},
+        [717] = {crest = 4, tracks = {{6, 4}}},
+        [720] = {crest = 4, tracks = {{6, 5}}},
+        [723] = {crest = 4, tracks = {{6, 6}}}
     }
 })
