@@ -1,5 +1,5 @@
 local _, ns = ...
-
+local L = ns.L
 
 local class = {}
 ns.class = class
@@ -326,23 +326,20 @@ end
 
 
 function class:GetSeasons()
-    local result = {}
-    for seasonKey, seasonData in pairs(seasons) do
-        table.insert(result, {
-            key = seasonKey,
-            name = seasonData.name,
-            version = seasonData.version,
-            validFrom = seasonData.validFrom,
-            validTo = seasonData.validTo,
-            versionPrefix = seasonData.versionPrefix,
-            isActive = (self.transformedSeasons[seasonKey] == self.data),
-            isTransformed = (self.transformedSeasons[seasonKey] ~= nil)
-        })
+    return ns.transformedSeasons or {}
+end
+
+-- Returns the icon string for a given crest key (crestName)
+function class:GetCrestIconByKey(key, name)
+    if not key or type(key) ~= "string" then return nil end
+    if not self.data or not self.data.crests then return nil end
+
+    local crest =  self.data.crests[key]
+    local out = crest.icon
+    if name then
+        out = string.format("%s %s", crest.icon, crest.name)
     end
-    
-    -- Sort by season key
-    table.sort(result, function(a, b) return a.key < b.key end)
-    
-    return result
+
+    return out
 end
 

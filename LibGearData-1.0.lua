@@ -10,16 +10,17 @@ local L = ns.L
 -- lib.data = nil
 -- lib.season = nil
 local seasons = {} -- Store all registered seasons (raw data)
-local transformedSeasons = {} -- Store transformed seasons (lazy loaded)
+ns.transformedSeasons = {} -- Store transformed seasons (lazy loaded)
 
-
-
+-- Cache for currency iconFileIDs
+local currencyIconCache = {}
 
 local function transformSeasonData(data)
     -- Transform the season data into the expected format
     local transformedData = {
         name = data.name,
-        version = data.version,
+        expansion = data.expansion,
+        season = data.season,
         validFrom = data.validFrom,
         validTo = data.validTo,
         versionPrefix = data.versionPrefix,
@@ -46,9 +47,31 @@ local function transformSeasonData(data)
     -- Transform crests array to map with crest names as keys
     if data.crests then
         for i, crest in ipairs(data.crests) do
+            -- Query iconFileID via WoW API if not present, with caching
+            local iconFileID = crest.iconFileID
+            if not iconFileID and crest.currency then
+                if currencyIconCache[crest.currency] ~= nil then
+                    iconFileID = currencyIconCache[crest.currency]
+                else
+                    local info = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo and C_CurrencyInfo.GetCurrencyInfo(crest.currency)
+                    if info and info.iconFileID then
+                        iconFileID = info.iconFileID
+                        currencyIconCache[crest.currency] = iconFileID
+                    else
+                        currencyIconCache[crest.currency] = false -- Mark as not found
+                    end
+                end
+            end
+            local iconString = nil
+            if iconFileID then
+                iconString = "|T"..iconFileID..":12|t"
+            end
             transformedData.crests[crest.name] = {
-                name = crest.name,
-                currency = crest.currency
+                key = crest.name,
+                name = L and L[crest.name] or crest.name,
+                currency = crest.currency,
+                iconFileID = iconFileID,
+                icon = iconString
             }
         end
     end
@@ -116,10 +139,10 @@ end
 
 function ns.getSeasonData(seasonKey)
     if not seasons[seasonKey] then return false end
-    if  transformedSeasons[seasonKey] then  return  transformedSeasons[seasonKey] end
+    if  ns.transformedSeasons[seasonKey] then  return  ns.transformedSeasons[seasonKey] end
     
-    transformedSeasons[seasonKey] = transformSeasonData(seasons[seasonKey])
-    return transformedSeasons[seasonKey]
+    ns.transformedSeasons[seasonKey] = transformSeasonData(seasons[seasonKey])
+    return ns.transformedSeasons[seasonKey]
 end
 
 
