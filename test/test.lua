@@ -3,28 +3,21 @@ local LibGearData = LibStub("LibGearData-1.0")
 local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_LOGIN")
 f:SetScript("OnEvent", function()
-    -- Test der Season-Daten-Transformation
-    DevTool:AddData(LibGearData.data, "Transformierte Season-Daten")
-    
-    -- Test der Tracks
-    local tracks = LibGearData:GetTracks()
-    DevTool:AddData(tracks, "Verfügbare Tracks")
-    
-    -- Test der Crests
-    local crests = LibGearData:GetCrests()
-    DevTool:AddData(crests, "Verfügbare Crests")
-    
-     -- Beispiel: explizit Season setzen (z.B. Season 2 der aktuellen Erweiterung)
-    local season2 = LibGearData:SetSeason(2)
-    DevTool:AddData(season2:getCurrentSeason(), "Aktive Season nach SetSeason(2)")
+    -- Test des neuen Season-Systems
+    DevTool:AddData(LibGearData, "LibGearData")
 
-    -- Beispiel: explizit Season und Expansion setzen (z.B. Expansion 10, Season 2)
-    local season2exp10 = LibGearData:SetSeason(2, 10)
-    DevTool:AddData(season2exp10:getCurrentSeason(), "Aktive Season nach SetSeason(2, 10)")
+    
 
-    -- Reset auf aktuelle Season
-    DevTool:AddData(LibGearData:getCurrentSeason(), "Aktive Season nach Reset (aktuelle Season)")
+    local season2exp10 = LibGearData:SetSeason(2, 11)
 
+     DevTool:AddData(season2exp10, "season2exp10")  
+     
+     DevTool:AddData(LibGearData:GetCurrentSeason(), "Aktive Season")
+
+      DevTool:AddData(season2exp10.data, "season2exp10")
+    DevTool:AddData(season2exp10:GetCurrentSeason(), "Aktive Season nach SetSeason(2, 11)")
+
+    DevTool:AddData(LibGearData:GetCurrentSeason(), "Aktive Season")
 
 
 
@@ -50,9 +43,12 @@ f:SetScript("OnEvent", function()
         }, "Test Itemlevel " .. testIlvl)
     end
 
-    -- Track-System APIs testen
     local allTracks = LibGearData:GetTracks()
     DevTool:AddData(allTracks, "Alle verfügbaren Tracks")
+
+     local season2exp11 = LibGearData:SetSeason(2, 11)
+       local allTracks2 = season2exp11:GetTracks()
+    DevTool:AddData(allTracks2, "Alle verfügbaren Tracks Last season")
 
     local explorerTrack = LibGearData:GetTrack("Explorer")
     DevTool:AddData(explorerTrack, "Explorer Track Details")
@@ -107,15 +103,7 @@ f:SetScript("OnEvent", function()
     local itemsWithCrest = LibGearData:GetItemLevelsWithCrest("runed")
     DevTool:AddData(itemsWithCrest, "Alle Itemlevel die runed crest benötigen")
 
-    -- Season-spezifische APIs
-    local seasonInfo = LibGearData:GetSeason()
-    DevTool:AddData(seasonInfo, "Aktuelle Season Informationen")
 
-    local seasonTracks = LibGearData:GetSeasonTracks()
-    DevTool:AddData(seasonTracks, "Season Track-Konfiguration")
-
-    local seasonCrests = LibGearData:GetSeasonCrests()
-    DevTool:AddData(seasonCrests, "Season Crest-Konfiguration")
 
     -- Lokalisierung APIs
     local trackName = LibGearData:GetTrackName("Veteran")
@@ -130,12 +118,6 @@ f:SetScript("OnEvent", function()
     local allCrestNames = LibGearData:GetCrestNames()
     DevTool:AddData(allCrestNames, "Alle Crest-Namen")
 
-    -- Aktuelle Sprache abfragen
-    local currentLocale = LibGearData:GetLocale()
-    DevTool:AddData(currentLocale, "Aktuelle Sprache")
-
-    local supportedLocales = LibGearData:GetLocales()
-    DevTool:AddData(supportedLocales, "Unterstützte Sprachen")
 
     -- Edge Case Tests
     local invalidIlvl = LibGearData:GetTracksByItemLevel(999)

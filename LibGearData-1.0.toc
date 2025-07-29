@@ -10,10 +10,7 @@
 ## X-Wago-ID: 
 
 
-LibGearData-1.0.lua
-
-data/11_season_3.lua
+LibGearData-1.0.xml
 
 
 test/test.lua
-

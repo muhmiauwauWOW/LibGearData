@@ -1,16 +1,22 @@
 -- Season 11.3 - The War Within Season 1
-local LibGearData = LibStub("LibGearData-1.0")
+local _, ns = ...
 
-LibGearData:RegisterSeasonData("11.3", {
+-- Store season data in namespace
+if not ns.seasons then
+    ns.seasons = {}
+end
+
+ns.seasons["11.3"] = {
     name = "The War Within - Season 3",
-    version = "11.3",
+    expansion = 11,
+    season = 3,
     
     -- Version validity (WoW interface versions)
-    validFrom = 110200, -- 11.0.2
-    validTo = 110300,   -- 11.0.3 (exclusive)
+    validFrom = 110200, -- 11.2
+    validTo = 110300,   -- 11.3 (exclusive)
     
     -- Alternative: version prefix matching
-    -- versionPrefix = "1102", -- matches 11.0.2.x
+    -- versionPrefix = "1102", -- matches 11.2.x
 
     tracks = {
         { name = "Explorer", maxRank = 8 },
@@ -57,4 +63,4 @@ LibGearData:RegisterSeasonData("11.3", {
         [720] = {crest = 4, tracks = {{6, 5}}},
         [723] = {crest = 4, tracks = {{6, 6}}}
     }
-})
+}
