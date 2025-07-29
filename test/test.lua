@@ -161,9 +161,12 @@ f:SetScript("OnEvent", function()
         }, "Boundary Test: " .. before .. " -> " .. after)
     end
 
+
+        DevTool:AddData(LibGearData:GetDungeonLootList(), "GetDungeonLootList")
+
     -- Available seasons
-    local availableSeasons = LibGearData:GetSeasons()
-    DevTool:AddData(availableSeasons, "Available Seasons")
+    -- local availableSeasons = LibGearData:GetSeasons()
+    -- DevTool:AddData(availableSeasons, "Available Seasons")
 
     print("Alle LibGearData API-Tests abgeschlossen!")
 end)

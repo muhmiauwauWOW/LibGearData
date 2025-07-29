@@ -25,7 +25,9 @@ local function transformSeasonData(data)
         validTo = data.validTo,
         versionPrefix = data.versionPrefix,
         tracks = {},
+        tracksByNames = {},
         crests = {},
+        crestsByIdx = {},
         itemLevels = {},
         tracksByIndex = {} -- For backwards compatibility with track indices
     }
@@ -35,12 +37,18 @@ local function transformSeasonData(data)
         for i, track in ipairs(data.tracks) do
             local trackName = track.name
             transformedData.tracks[i] = {
-                name = trackName,
+                name = L[trackName],
+                maxRank = track.maxRank,
+                itemLevels = {} -- Will be populated below
+            }
+
+            transformedData.tracksByNames[trackName] = {
+                name = L[trackName],
                 maxRank = track.maxRank,
                 itemLevels = {} -- Will be populated below
             }
             -- Store index to name mapping for convenience
-            transformedData.tracksByIndex[i] = trackName
+            transformedData.tracksByIndex[i] = L[trackName]
         end
     end
     
@@ -48,30 +56,35 @@ local function transformSeasonData(data)
     if data.crests then
         for i, crest in ipairs(data.crests) do
             -- Query iconFileID via WoW API if not present, with caching
-            local iconFileID = crest.iconFileID
-            if not iconFileID and crest.currency then
+            local currencyInfo = nil
+            if crest.currency then
                 if currencyIconCache[crest.currency] ~= nil then
-                    iconFileID = currencyIconCache[crest.currency]
+                    currencyInfo = currencyIconCache[crest.currency]
                 else
                     local info = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo and C_CurrencyInfo.GetCurrencyInfo(crest.currency)
                     if info and info.iconFileID then
-                        iconFileID = info.iconFileID
-                        currencyIconCache[crest.currency] = iconFileID
+                        currencyIconCache[crest.currency] = info -- Cache the whole object
+                        currencyInfo = info
                     else
                         currencyIconCache[crest.currency] = false -- Mark as not found
                     end
                 end
             end
-            local iconString = nil
-            if iconFileID then
-                iconString = "|T"..iconFileID..":12|t"
-            end
+
+            transformedData.crestsByIdx[i] = {
+                key = crest.name,
+                name = currencyInfo.name,
+                currency = crest.currency,
+                iconFileID = currencyInfo.iconFileID,
+                icon =  "|T"..currencyInfo.iconFileID..":12|t"
+            }
+
             transformedData.crests[crest.name] = {
                 key = crest.name,
-                name = L and L[crest.name] or crest.name,
+                name = currencyInfo.name,
                 currency = crest.currency,
-                iconFileID = iconFileID,
-                icon = iconString
+                iconFileID = currencyInfo.iconFileID,
+                icon =  "|T"..currencyInfo.iconFileID..":12|t"
             }
         end
     end
@@ -132,6 +145,17 @@ local function transformSeasonData(data)
                 end
             end
         end
+    end
+    
+    -- Übernehme dungeonLoot, delvesLoot, raidLoot falls vorhanden
+    if data.dungeonLoot then
+        transformedData.dungeonLoot = data.dungeonLoot
+    end
+    if data.delvesLoot then
+        transformedData.delvesLoot = data.delvesLoot
+    end
+    if data.raidLoot then
+        transformedData.raidLoot = data.raidLoot
     end
     
     return transformedData

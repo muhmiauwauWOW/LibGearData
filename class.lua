@@ -4,6 +4,13 @@ local L = ns.L
 local class = {}
 ns.class = class
 
+
+
+function class:GetSeasons()
+    return ns.transformedSeasons or {}
+end
+
+
 function class:SetSeason(season, expansion)
     if type(season) ~= "number" or season < 1 then
         error("Invalid season number", 2)
@@ -46,6 +53,8 @@ local function validateTrackName(trackName)
     return type(trackName) == "string" and trackName ~= ""
 end
 
+
+
 -- Public API Methods
 
 function class:GetTracksByItemLevel(ilvl)
@@ -61,7 +70,8 @@ function class:GetCrestByItemLevel(ilvl)
     if not self.data then return nil end
     
     local itemData = self.data.itemLevels and self.data.itemLevels[ilvl]
-    return itemData and itemData.crest or nil
+    return itemData and self:GetCrestName(itemData.crest) or nil
+
 end
 
 function class:GetTracks()
@@ -292,42 +302,33 @@ function class:GetItemLevelsWithCrest(crestName)
 end
 
 
--- Localization methods
 function class:GetTrackName(trackName)
-    if not validateTrackName(trackName) then return trackName end
-    return L and L[trackName] or trackName
+     if not self.data.tracksByNames[trackName] then return trackName end
+    return self.data.tracksByNames[trackName].name
 end
 
 function class:GetCrestName(crestName)
-    if not crestName or type(crestName) ~= "string" then return crestName end
-    return L and L[crestName] or crestName
+    if not self.data.crests[crestName] then return crestName end
+    return self.data.crests[crestName].name
 end
 
 function class:GetTrackNames()
-    local tracks = self:GetTracks()
-    local result = {}
-    for i, track in pairs(tracks) do
-        if track and track.name then
-            result[track.name] = self:GetTrackName(track.name)
-        end
+    local new_array = {}
+    for i, value in ipairs(self.data.tracks) do
+        new_array[i] = value.name
     end
-    return result
+    return new_array
 end
 
 function class:GetCrestNames()
-    local crests = self:GetCrests()
-    local result = {}
-    for _, crestName in ipairs(crests) do
-        result[crestName] = self:GetCrestName(crestName)
+    local new_array = {}
+    for key, value in pairs(self.data.crests) do
+        table.insert(new_array, value.name)
     end
-    return result
+    return new_array
 end
 
 
-
-function class:GetSeasons()
-    return ns.transformedSeasons or {}
-end
 
 -- Returns the icon string for a given crest key (crestName)
 function class:GetCrestIconByKey(key, name)
@@ -343,3 +344,63 @@ function class:GetCrestIconByKey(key, name)
     return out
 end
 
+
+
+
+function class:GetRaidLootList()
+    if not self.data or not self.data.raidLoot then return {} end
+
+    local result = {}
+    for _, entry in ipairs(self.data.raidLoot) do
+        local crest = self:GetCrestIconByKey(self.data.crestsByIdx[entry.crestIdx].key, true)
+        table.insert(result, {
+            entry.name,
+            entry.ilvl1,
+            entry.ilvl2,
+            entry.ilvl3,
+            crest
+        })
+    end
+    return result
+end
+
+function class:GetDungeonLootList()
+    if not self.data or not self.data.dungeonLoot then return {} end
+
+    local result = {}
+    for _, entry in ipairs(self.data.dungeonLoot) do
+        local crestAmount = entry.crestAmount
+        local crestIcon = self.data.crestsByIdx[entry.crestIdx].icon
+		
+        local crestString = string.format("%s x %d", crestIcon, crestAmount)
+        if not crestAmount then 
+            crestString = crestIcon
+        end
+
+        table.insert(result, {
+            entry.difficulty,
+            entry.ilvl1,
+            self:GetHighestTrackString(entry.ilvl1),
+            entry.ilvl2,
+            self:GetHighestTrackString(entry.ilvl2),
+            crestString
+        })
+    end
+    return result
+end
+
+function class:GetDelvesLootList()
+    if not self.data or not self.data.delvesLoot then return {} end
+
+    local result = {}
+    for _, entry in ipairs(self.data.delvesLoot) do
+        table.insert(result, {
+            entry.difficulty,
+            entry.ilvl1,
+            self:GetHighestTrackString(entry.ilvl1),
+            entry.ilvl2,
+            self:GetHighestTrackString(entry.ilvl2)
+        })
+    end
+    return result
+end

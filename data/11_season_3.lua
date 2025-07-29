@@ -62,5 +62,46 @@ ns.seasons["11.3"] = {
         [717] = {crest = 4, tracks = {{6, 4}}},
         [720] = {crest = 4, tracks = {{6, 5}}},
         [723] = {crest = 4, tracks = {{6, 6}}}
+    },
+
+    
+
+    dungeonLoot = {
+        { difficulty = PLAYER_DIFFICULTY2, ilvl1 = 665, ilvl2 = 678, crestIdx = 1 },
+        { difficulty = PLAYER_DIFFICULTY6, ilvl1 = 681, ilvl2 = 691, crestIdx = 2 },
+        { difficulty = 2, ilvl1 = 684, ilvl2 = 694, crestIdx = 3, crestAmount = 10 },
+        { difficulty = 3, ilvl1 = 684, ilvl2 = 694, crestIdx = 3, crestAmount = 12 },
+        { difficulty = 4, ilvl1 = 688, ilvl2 = 697, crestIdx = 3, crestAmount = 14 },
+        { difficulty = 5, ilvl1 = 691, ilvl2 = 697, crestIdx = 3, crestAmount = 16 },
+        { difficulty = 6, ilvl1 = 694, ilvl2 = 701, crestIdx = 3, crestAmount = 18 },
+        { difficulty = 7, ilvl1 = 694, ilvl2 = 704, crestIdx = 4, crestAmount = 10 },
+        { difficulty = 8, ilvl1 = 697, ilvl2 = 704, crestIdx = 4, crestAmount = 12 },
+        { difficulty = 9, ilvl1 = 697, ilvl2 = 704, crestIdx = 4, crestAmount = 14 },
+        { difficulty = 10, ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 16 },
+        { difficulty = 11, ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 18 },
+        { difficulty = "12+", ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 20 }
+    },
+
+    delvesLoot = {
+        { difficulty = 1, ilvl1 = 655, ilvl2 = 655 },
+        { difficulty = 2, ilvl1 = 658, ilvl2 = 668 },
+        { difficulty = 3, ilvl1 = 662, ilvl2 = 671 },
+        { difficulty = 4, ilvl1 = 665, ilvl2 = 681 },
+        { difficulty = 5, ilvl1 = 668, ilvl2 = 684 },
+        { difficulty = 6, ilvl1 = 671, ilvl2 = 691 },
+        { difficulty = 7, ilvl1 = 681, ilvl2 = 691 },
+        { difficulty = 8, ilvl1 = 684, ilvl2 = 694 },
+        { difficulty = 9, ilvl1 = 684, ilvl2 = 694 },
+        { difficulty = 10, ilvl1 = 684, ilvl2 = 694 },
+        { difficulty = 11, ilvl1 = 684, ilvl2 = 694 }
+    },
+
+    raidLoot = {
+        { name = "LFR", ilvl1 = 671, ilvl2 = 675, ilvl3 = 678, crestIdx = 1 },
+        { name = "Normal", ilvl1 = 684, ilvl2 = 688, ilvl3 = 691, crestIdx = 2 },
+        { name = "Heroic", ilvl1 = 697, ilvl2 = 701, ilvl3 = 704, crestIdx = 3 },
+        { name = "Mythic", ilvl1 = 710, ilvl2 = 714, ilvl3 = 717, crestIdx = 4 }
     }
+
+    
 }
