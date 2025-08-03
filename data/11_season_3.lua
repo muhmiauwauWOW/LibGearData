@@ -66,21 +66,20 @@ ns.seasons["11.3"] = {
 
     
 
-    
     dungeons = {
-        { key = 665, vault = 678, crests = {1} },
-        { key = 681, vault = 691, crests = {2}, crestAmount = 15 },
-        { key = 684, vault = 694, crests = {3}, crestAmount = 10 },
-        { key = 684, vault = 694, crests = {3}, crestAmount = 12 },
-        { key = 688, vault = 697, crests = {3}, crestAmount = 14 },
-        { key = 691, vault = 697, crests = {3}, crestAmount = 16 },
-        { key = 694, vault = 701, crests = {3}, crestAmount = 18 },
-        { key = 694, vault = 704, crests = {4}, crestAmount = 10 },
-        { key = 697, vault = 704, crests = {4}, crestAmount = 12 },
-        { key = 697, vault = 704, crests = {4}, crestAmount = 14 },
-        { key = 701, vault = 707, crests = {4}, crestAmount = 16 },
-        { key = 701, vault = 707, crests = {4}, crestAmount = 18 },
-        { key = 701, vault = 707, crests = {4}, crestAmount = 20 }
+        { level = "Heroic", key = 665, vault = 678, crests = 1 },
+        { level = "Mythic", key = 681, vault = 691, crests = 2, crestAmount = 15 },
+        { level = 2, key = 684, vault = 694, crest = 3, crestAmount = 10 },
+        { level = 3, key = 684, vault = 694, crest = 3, crestAmount = 12 },
+        { level = 4, key = 688, vault = 697, crest = 3, crestAmount = 14 },
+        { level = 5, key = 691, vault = 697, crest = 3, crestAmount = 16 },
+        { level = 6, key = 694, vault = 701, crest = 3, crestAmount = 18 },
+        { level = 7, key = 694, vault = 704, crest = 4, crestAmount = 10 },
+        { level = 8, key = 697, vault = 704, crest = 4, crestAmount = 12 },
+        { level = 9, key = 697, vault = 704, crest = 4, crestAmount = 14 },
+        { level = 10, key = 701, vault = 707, crest = 4, crestAmount = 16 },
+        { level = 11, key = 701, vault = 707, crest = 4, crestAmount = 18 },
+        { level = 12, key = 701, vault = 707, crest = 4, crestAmount = 20 }
     },
 
 
@@ -107,60 +106,63 @@ ns.seasons["11.3"] = {
         { itemQuality = 5, enchantedWeathered = 629, sparkOfOmens = 645, enchantedRuned = 658, enchantedGilded = 675 }
     },
 
+    
+    raidBosses = {"1-3", "4-6", "7-8"},
+
     raid = {
         { difficulty = "LFR", bosses = "1-3", loot = 671, crests = 1, crestAmount = 10 },
         { difficulty = "LFR", bosses = "4-6", loot = 675 },
         { difficulty = "LFR", bosses = "7-8", loot = 678, crests = 1, crestAmount = 15 },
-        { difficulty = PLAYER_DIFFICULTY1, bosses = "1-3", loot = 684, crests = 2, crestAmount = 10 },
-        { difficulty = PLAYER_DIFFICULTY1, bosses = "4-6", loot = 688 },
-        { difficulty = PLAYER_DIFFICULTY1, bosses = "7-8", loot = 691, crests = 2, crestAmount = 15 },
-        { difficulty = PLAYER_DIFFICULTY2, bosses = "1-3", loot = 697, crests = 3, crestAmount = 10 },
-        { difficulty = PLAYER_DIFFICULTY2, bosses = "4-6", loot = 701 },
-        { difficulty = PLAYER_DIFFICULTY2, bosses = "7-8", loot = 704, crests = 3, crestAmount = 15 },
-        { difficulty = PLAYER_DIFFICULTY6, bosses = "1-3", loot = 710, crests = 4, crestAmount = 10 },
-        { difficulty = PLAYER_DIFFICULTY6, bosses = "4-6", loot = 714 },
-        { difficulty = PLAYER_DIFFICULTY6, bosses = "7-8", loot = 717, crests = 4, crestAmount = 15 }
+        { difficulty = "Normal", bosses = "1-3", loot = 684, crests = 2, crestAmount = 10 },
+        { difficulty = "Normal", bosses = "4-6", loot = 688 },
+        { difficulty = "Normal", bosses = "7-8", loot = 691, crests = 2, crestAmount = 15 },
+        { difficulty = "Heroic", bosses = "1-3", loot = 697, crests = 3, crestAmount = 10 },
+        { difficulty = "Heroic", bosses = "4-6", loot = 701 },
+        { difficulty = "Heroic", bosses = "7-8", loot = 704, crests = 3, crestAmount = 15 },
+        { difficulty = "Mythic", bosses = "1-3", loot = 710, crests = 4, crestAmount = 10 },
+        { difficulty = "Mythic", bosses = "4-6", loot = 714 },
+        { difficulty = "Mythic", bosses = "7-8", loot = 717, crests = 4, crestAmount = 15 }
     },
     
 
-    dungeonLoot = {
-        { difficulty = PLAYER_DIFFICULTY2, ilvl1 = 665, ilvl2 = 678, crestIdx = 1 },
-        { difficulty = PLAYER_DIFFICULTY6, ilvl1 = 681, ilvl2 = 691, crestIdx = 2 },
-        { difficulty = 2, ilvl1 = 684, ilvl2 = 694, crestIdx = 3, crestAmount = 10 },
-        { difficulty = 3, ilvl1 = 684, ilvl2 = 694, crestIdx = 3, crestAmount = 12 },
-        { difficulty = 4, ilvl1 = 688, ilvl2 = 697, crestIdx = 3, crestAmount = 14 },
-        { difficulty = 5, ilvl1 = 691, ilvl2 = 697, crestIdx = 3, crestAmount = 16 },
-        { difficulty = 6, ilvl1 = 694, ilvl2 = 701, crestIdx = 3, crestAmount = 18 },
-        { difficulty = 7, ilvl1 = 694, ilvl2 = 704, crestIdx = 4, crestAmount = 10 },
-        { difficulty = 8, ilvl1 = 697, ilvl2 = 704, crestIdx = 4, crestAmount = 12 },
-        { difficulty = 9, ilvl1 = 697, ilvl2 = 704, crestIdx = 4, crestAmount = 14 },
-        { difficulty = 10, ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 16 },
-        { difficulty = 11, ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 18 },
-        { difficulty = "12+", ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 20 }
-    },
+    -- dungeonLoot = {
+    --     { difficulty = "Heroic", ilvl1 = 665, ilvl2 = 678, crestIdx = 1 },
+    --     { difficulty = "Mythic", ilvl1 = 681, ilvl2 = 691, crestIdx = 2 },
+    --     { difficulty = 2, ilvl1 = 684, ilvl2 = 694, crestIdx = 3, crestAmount = 10 },
+    --     { difficulty = 3, ilvl1 = 684, ilvl2 = 694, crestIdx = 3, crestAmount = 12 },
+    --     { difficulty = 4, ilvl1 = 688, ilvl2 = 697, crestIdx = 3, crestAmount = 14 },
+    --     { difficulty = 5, ilvl1 = 691, ilvl2 = 697, crestIdx = 3, crestAmount = 16 },
+    --     { difficulty = 6, ilvl1 = 694, ilvl2 = 701, crestIdx = 3, crestAmount = 18 },
+    --     { difficulty = 7, ilvl1 = 694, ilvl2 = 704, crestIdx = 4, crestAmount = 10 },
+    --     { difficulty = 8, ilvl1 = 697, ilvl2 = 704, crestIdx = 4, crestAmount = 12 },
+    --     { difficulty = 9, ilvl1 = 697, ilvl2 = 704, crestIdx = 4, crestAmount = 14 },
+    --     { difficulty = 10, ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 16 },
+    --     { difficulty = 11, ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 18 },
+    --     { difficulty = "12+", ilvl1 = 701, ilvl2 = 707, crestIdx = 4, crestAmount = 20 }
+    -- },
 
-    delvesLoot = {
-        { difficulty = 1, ilvl1 = 655, ilvl2 = 655 },
-        { difficulty = 2, ilvl1 = 658, ilvl2 = 668 },
-        { difficulty = 3, ilvl1 = 662, ilvl2 = 671 },
-        { difficulty = 4, ilvl1 = 665, ilvl2 = 681 },
-        { difficulty = 5, ilvl1 = 668, ilvl2 = 684 },
-        { difficulty = 6, ilvl1 = 671, ilvl2 = 691 },
-        { difficulty = 7, ilvl1 = 681, ilvl2 = 691 },
-        { difficulty = 8, ilvl1 = 684, ilvl2 = 694 },
-        { difficulty = 9, ilvl1 = 684, ilvl2 = 694 },
-        { difficulty = 10, ilvl1 = 684, ilvl2 = 694 },
-        { difficulty = 11, ilvl1 = 684, ilvl2 = 694 }
-    },
+    -- delvesLoot = {
+    --     { difficulty = 1, ilvl1 = 655, ilvl2 = 655 },
+    --     { difficulty = 2, ilvl1 = 658, ilvl2 = 668 },
+    --     { difficulty = 3, ilvl1 = 662, ilvl2 = 671 },
+    --     { difficulty = 4, ilvl1 = 665, ilvl2 = 681 },
+    --     { difficulty = 5, ilvl1 = 668, ilvl2 = 684 },
+    --     { difficulty = 6, ilvl1 = 671, ilvl2 = 691 },
+    --     { difficulty = 7, ilvl1 = 681, ilvl2 = 691 },
+    --     { difficulty = 8, ilvl1 = 684, ilvl2 = 694 },
+    --     { difficulty = 9, ilvl1 = 684, ilvl2 = 694 },
+    --     { difficulty = 10, ilvl1 = 684, ilvl2 = 694 },
+    --     { difficulty = 11, ilvl1 = 684, ilvl2 = 694 }
+    -- },
 
 
-    raidLootIlvlsBosses = {"1-3", "4-6", "7-8"},
-    raidLoot = {
-        { name = "LFR", ilvls = {671, 675, 678}, crestIdx = 1 },
-        { name = PLAYER_DIFFICULTY1, ilvls = {684, 688, 691}, crestIdx = 2 },
-        { name = PLAYER_DIFFICULTY2, ilvls = {697, 701, 704}, crestIdx = 3 },
-        { name = PLAYER_DIFFICULTY6, ilvls = {710, 714, 717}, crestIdx = 4 }
-    },
+   
+    -- raidLoot = {
+    --     { name = "LFR", ilvls = {671, 675, 678}, crestIdx = 1 },
+    --     { name = PLAYER_DIFFICULTY1, ilvls = {684, 688, 691}, crestIdx = 2 },
+    --     { name = PLAYER_DIFFICULTY2, ilvls = {697, 701, 704}, crestIdx = 3 },
+    --     { name = PLAYER_DIFFICULTY6, ilvls = {710, 714, 717}, crestIdx = 4 }
+    -- },
 
  
 

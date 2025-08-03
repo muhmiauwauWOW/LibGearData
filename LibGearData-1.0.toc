@@ -1,16 +1,17 @@
 ## Interface: 110200
-## Title: Lib: GearData-1.0
+## Title: LibGearData
 ## Notes: Library for World of Warcraft gear track and crest data
 ## Author: muhmiauwau
 ## Version: 1.0
-
 ## X-Category: Library
 ## X-License: MIT
-## X-Curse-Project-ID: 
-## X-Wago-ID: 
+
+## X-Curse-Project-ID: 1316628
 
 
 LibGearData-1.0.xml
 
 
-test/test.lua
+#@do-not-package@
+# test/test.lua
+#@end-do-not-package@

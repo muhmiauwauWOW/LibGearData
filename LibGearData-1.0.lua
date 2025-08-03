@@ -2,25 +2,23 @@ local MAJOR, MINOR = "LibGearData-1.0", 1
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
--- lib.__index = lib
+--@do-not-package@
+-- https://docs.google.com/spreadsheets/d/1pLpQSCIV9_P_89MExObd5tOc_Ce2WFa5xCMd0Y4eHgc/edit?gid=937744938#gid=937744938
+--@end-do-not-package@
+
 local _, ns = ...
 local L = ns.L
 
- local dungeonsLevels  = {
-    PLAYER_DIFFICULTY2,
-    PLAYER_DIFFICULTY6,
-    2,
-    3, 
-    4,
-    5,
-    6,
-    7,
-    8,
-    9, 
-    10,
-    11,
-    12,
+
+ns.DifficultiesOrder = {
+    raid = {"LFR", PLAYER_DIFFICULTY1, PLAYER_DIFFICULTY2, PLAYER_DIFFICULTY6}
 }
+local difficulties = {
+    Normal =  PLAYER_DIFFICULTY1,
+    Heroic =  PLAYER_DIFFICULTY2,
+    Mythic =  PLAYER_DIFFICULTY6
+}
+
 
 -- Simple data storage
 -- lib.data = nil
@@ -36,17 +34,16 @@ local function fillcrests(obj, crestsByIdx)
         for _, entry in ipairs(obj) do
             local newEntry = {}
             for k, v in pairs(entry) do
-                if k == "crests" then
+                if (k == "level" or k == "difficulty") and type(v) == "string" then
+                    newEntry[k] = difficulties[v] or v
+                elseif (k == "crest"  or k == "crests" )  and type(v) == "table"  then
                     newEntry.crests = {}
-                    if type(v) == "table" then
-                        for _, idx in ipairs(v) do
-                            local crestObj = crestsByIdx[idx]
-                            table.insert(newEntry.crests, crestObj)
-                        end
-                    elseif type(v) == "number" then
-                        local crestObj = crestsByIdx[v]
-                        if crestObj then table.insert(newEntry.crests, crestObj) end
+                    for _, idx in ipairs(v) do
+                        local crestObj = crestsByIdx[idx]
+                        table.insert(newEntry.crests, crestObj)
                     end
+                elseif k == "crest"  or k == "crests" then
+                    newEntry.crest = crestsByIdx[v]
                 else
                     newEntry[k] = v
                 end
@@ -73,7 +70,8 @@ local function transformSeasonData(data)
         crests = {},
         crestsByIdx = {},
         itemLevels = {},
-        tracksByIndex = {} -- For backwards compatibility with track indices
+        tracksByIndex = {},
+        tracksNamesByIndex = {}
     }
     
     -- Transform tracks array to indexed array (preserve order)
@@ -81,18 +79,21 @@ local function transformSeasonData(data)
         for i, track in ipairs(data.tracks) do
             local trackName = track.name
             transformedData.tracks[i] = {
+                key = trackName,
                 name = L[trackName],
                 maxRank = track.maxRank,
                 itemLevels = {} -- Will be populated below
             }
 
             transformedData.tracksByNames[trackName] = {
+                key = trackName,
                 name = L[trackName],
                 maxRank = track.maxRank,
                 itemLevels = {} -- Will be populated below
             }
             -- Store index to name mapping for convenience
-            transformedData.tracksByIndex[i] = L[trackName]
+            transformedData.tracksByIndex[i] = trackName
+            transformedData.tracksNamesByIndex[i] = L[trackName]
         end
     end
     
@@ -190,30 +191,10 @@ local function transformSeasonData(data)
             end
         end
     end
-    
-    -- Übernehme dungeonLoot, delvesLoot, raidLoot falls vorhanden
-    if data.dungeonLoot then
-        transformedData.dungeonLoot = data.dungeonLoot
-    end
-    if data.delvesLoot then
-        transformedData.delvesLoot = data.delvesLoot
-    end
-    if data.raidLoot then
-         transformedData.raidLootIlvlsBosses = data.raidLootIlvlsBosses
-        transformedData.raidLoot = data.raidLoot
-    end
+
     -- Übernehme neue Tabellen falls vorhanden
     if data.dungeons then
         transformedData.dungeons = fillcrests(data.dungeons, transformedData.crestsByIdx)
-        local levels = ns.dungeonsLevels or dungeonsLevels
-        for i, entry in ipairs(data.dungeons) do
-            local newEntry = {}
-            for k, v in pairs(entry) do newEntry[k] = v end
-            if levels and levels[i] then
-                newEntry.level = levels[i]
-            end
-            table.insert(transformedData.dungeons, newEntry)
-        end
     end
     if data.delves then
         transformedData.delves = fillcrests(data.delves, transformedData.crestsByIdx)
@@ -225,6 +206,8 @@ local function transformSeasonData(data)
         transformedData.raid = fillcrests(data.raid, transformedData.crestsByIdx)
     end
 
+    transformedData.raidBossesMap = data.raidBosses
+    transformedData.DifficultiesOrder = ns.DifficultiesOrder
 
     
     

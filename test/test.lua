@@ -16,12 +16,18 @@ f:SetScript("OnEvent", function()
     AddDataDebug(LibGearData, "LibGearData")
 
     local season2exp10 = LibGearData:SetSeason(2, 11)
-    AddDataDebug(season2exp10, "season2exp10")  
+    AddDataDebug(season2exp10, "season2exp10")
     AddDataDebug(LibGearData:GetCurrentSeason(), "Aktive Season")
     AddDataDebug(season2exp10.data, "season2exp10")
-    AddDataDebug(season2exp10:GetCurrentSeason(), "Aktive Season nach SetSeason(2, 11)")
+    AddDataDebug(season2exp10:GetCurrentSeason(),
+                 "Aktive Season nach SetSeason(2, 11)")
     AddDataDebug(LibGearData:GetCurrentSeason(), "Aktive Season")
 
+    AddDataDebug(LibGearData.data.dungeons, "LibGearData")
+    AddDataDebug(LibGearData:GetData("dungeons"), "GetData(dungeon)")
+
+    AddDataDebug(LibGearData:GetData("delves"), "GetData(delves)")
+    AddDataDebug(LibGearData:GetData("raid"), "GetData(raid)")
 
 
     -- Realistischer Test für Itemlevel 691 (nur reine API-Abfragen, keine eigene Logik)
@@ -165,11 +171,6 @@ f:SetScript("OnEvent", function()
     end
 
 
-
-    
-    local season2exp10 = LibGearData:SetSeason(2, 11)
-        AddDataDebug(season2exp10:GetRaidLootList(), "GetDungeonLootList")
-    AddDataDebug(LibGearData:GetRaidLootList(), "GetDungeonLootList")
 
     -- Available seasons
     -- local availableSeasons = LibGearData:GetSeasons()
