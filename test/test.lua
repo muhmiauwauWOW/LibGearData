@@ -18,7 +18,6 @@ f:SetScript("OnEvent", function()
     local season2exp10 = LibGearData:SetSeason(2, 11)
     AddDataDebug(season2exp10, "season2exp10")
     AddDataDebug(LibGearData:GetCurrentSeason(), "Aktive Season")
-    AddDataDebug(season2exp10.data, "season2exp11")
     AddDataDebug(season2exp10:GetCurrentSeason(),
                  "Aktive Season nach SetSeason(2, 11)")
     AddDataDebug(LibGearData:GetCurrentSeason(), "Aktive Season")

@@ -111,6 +111,3 @@ local crest = LibGearData:GetCrestByItemLevel(681)
 print("Tracks:", tracks)
 print("Crest:", crest)
 ```
-
-## License
-MIT
