@@ -114,23 +114,25 @@ local function transformSeasonData(data)
                         currencyIconCache[crest.currency] = false -- Mark as not found
                     end
                 end
+          
+                if currencyInfo then 
+                    transformedData.crestsByIdx[i] = {
+                        key = crest.name,
+                        name = currencyInfo.name,
+                        currency = crest.currency,
+                        iconFileID = currencyInfo.iconFileID,
+                        icon =  "|T"..currencyInfo.iconFileID..":12|t"
+                    }
+
+                    transformedData.crests[crest.name] = {
+                        key = crest.name,
+                        name = currencyInfo.name,
+                        currency = crest.currency,
+                        iconFileID = currencyInfo.iconFileID,
+                        icon =  "|T"..currencyInfo.iconFileID..":12|t"
+                    }
+                end
             end
-
-            transformedData.crestsByIdx[i] = {
-                key = crest.name,
-                name = currencyInfo.name,
-                currency = crest.currency,
-                iconFileID = currencyInfo.iconFileID,
-                icon =  "|T"..currencyInfo.iconFileID..":12|t"
-            }
-
-            transformedData.crests[crest.name] = {
-                key = crest.name,
-                name = currencyInfo.name,
-                currency = crest.currency,
-                iconFileID = currencyInfo.iconFileID,
-                icon =  "|T"..currencyInfo.iconFileID..":12|t"
-            }
         end
     end
     

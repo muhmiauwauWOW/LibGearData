@@ -16,7 +16,7 @@ function class:SetSeason(season, expansion)
     end
     if self.SetSeason then self = {} end
     local newLib = setmetatable(self, {__index = ns.class})
-    newLib.data = nil
+    newLib._data = nil
     newLib.season = nil
 
     newLib.season = {
@@ -26,7 +26,7 @@ function class:SetSeason(season, expansion)
 
     -- Try to find and activate the matching season data
     local key = string.format("%s.%s", expansion, season)
-    newLib.data = ns.getSeasonData(key)
+    newLib._data = ns.getSeasonData(key)
 
     return newLib
 end
@@ -38,43 +38,42 @@ local function validateItemLevel(ilvl) return
     type(ilvl) == "number" and ilvl > 0 end
 
 local function validateTrackName(trackName)
-    return type(trackName) == "string" and trackName ~= ""
-end
+    return type(trackName) == "string" and trackName ~= "" end
 
 -- Public API Methods
 
 function class:GetTracksByItemLevel(ilvl)
     if not validateItemLevel(ilvl) then return nil end
-    if not self.data then return nil end
+    if not self._data then return nil end
 
-    local itemData = self.data.itemLevels and self.data.itemLevels[ilvl]
+    local itemData = self._data.itemLevels and self._data.itemLevels[ilvl]
     return itemData and itemData.tracks or nil
 end
 
 function class:GetCrestByItemLevel(ilvl)
     if not validateItemLevel(ilvl) then return nil end
-    if not self.data then return nil end
+    if not self._data then return nil end
 
-    local itemData = self.data.itemLevels and self.data.itemLevels[ilvl]
+    local itemData = self._data.itemLevels and self._data.itemLevels[ilvl]
     return itemData and self:GetCrestName(itemData.crest) or nil
 
 end
 
 function class:GetTracks()
-    if not self.data then return {} end
+    if not self._data then return {} end
 
-    return self.data.tracks
+    return self._data.tracks
 end
 
 function class:GetTrack(trackIdentifier)
-    if not self.data then return nil end
+    if not self._data then return nil end
 
     -- Support both index (number) and name (string)
     if type(trackIdentifier) == "number" then
-        return self.data.tracks and self.data.tracks[trackIdentifier] or nil
+        return self._data.tracks and self._data.tracks[trackIdentifier] or nil
     elseif type(trackIdentifier) == "string" and trackIdentifier ~= "" then
         -- Find track by name
-        for i, track in pairs(self.data.tracks or {}) do
+        for i, track in pairs(self._data.tracks or {}) do
             if track.key == trackIdentifier then return track end
         end
     end
@@ -186,10 +185,10 @@ function class:GetHighestTrackString(ilvl)
 end
 
 function class:GetCrests()
-    if not self.data then return {} end
+    if not self._data then return {} end
 
     local crests = {}
-    for crestName, _ in pairs(self.data.crests or {}) do
+    for crestName, _ in pairs(self._data.crests or {}) do
         table.insert(crests, crestName)
     end
     table.sort(crests)
@@ -198,9 +197,9 @@ end
 
 function class:GetCrest(crestName)
     if not crestName or type(crestName) ~= "string" then return nil end
-    if not self.data then return nil end
+    if not self._data then return nil end
 
-    return self.data.crests and self.data.crests[crestName] or nil
+    return self._data.crests and self._data.crests[crestName] or nil
 end
 
 function class:GetRequiredCrest(fromIlvl, toIlvl)
@@ -278,10 +277,10 @@ end
 
 function class:GetItemLevelsWithCrest(crestName)
     if not crestName or type(crestName) ~= "string" then return nil end
-    if not self.data then return nil end
+    if not self._data then return nil end
 
     local result = {}
-    for ilvl, itemData in pairs(self.data.itemLevels or {}) do
+    for ilvl, itemData in pairs(self._data.itemLevels or {}) do
         if itemData.crest == crestName then table.insert(result, ilvl) end
     end
 
@@ -290,24 +289,24 @@ function class:GetItemLevelsWithCrest(crestName)
 end
 
 function class:GetTrackName(trackName)
-    if not self.data.tracksByNames[trackName] then return trackName end
-    return self.data.tracksByNames[trackName].name
+    if not self._data.tracksByNames[trackName] then return trackName end
+    return self._data.tracksByNames[trackName].name
 end
 
 function class:GetCrestName(crestName)
-    if not self.data.crests[crestName] then return crestName end
-    return self.data.crests[crestName].name
+    if not self._data.crests[crestName] then return crestName end
+    return self._data.crests[crestName].name
 end
 
 function class:GetTrackNames()
     local new_array = {}
-    for i, value in ipairs(self.data.tracks) do new_array[i] = value.name end
+    for i, value in ipairs(self._data.tracks) do new_array[i] = value.name end
     return new_array
 end
 
 function class:GetCrestNames()
     local new_array = {}
-    for key, value in pairs(self.data.crests) do
+    for key, value in pairs(self._data.crests) do
         table.insert(new_array, value.name)
     end
     return new_array
@@ -316,9 +315,9 @@ end
 -- Returns the icon string for a given crest key (crestName)
 function class:GetCrestIconByKey(key, name)
     if not key or type(key) ~= "string" then return nil end
-    if not self.data or not self.data.crests then return nil end
+    if not self._data or not self._data.crests then return nil end
 
-    local crest = self.data.crests[key]
+    local crest = self._data.crests[key]
     local out = crest.icon
     if name then out = string.format("%s %s", crest.icon, crest.name) end
 
@@ -326,15 +325,15 @@ function class:GetCrestIconByKey(key, name)
 end
 
 function class:GetRaidBossesMap()
-    if not self.data or not self.data.raidBossesMap then return {} end
-    return self.data.raidBossesMap
+    if not self._data or not self._data.raidBossesMap then return {} end
+    return self._data.raidBossesMap
 end
 function class:GetDifficultiesOrder(typ)
     if not typ or type(typ) ~= "string" then return {} end
-    return self.data.DifficultiesOrder[typ]
+    return self._data.DifficultiesOrder[typ]
 end
 
 function class:GetData(typ)
-    if not self.data or not self.data[typ] then return {} end
-    return self.data[typ]
+    if not self._data or not self._data[typ] then return {} end
+    return self._data[typ]
 end

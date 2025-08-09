@@ -18,13 +18,11 @@ f:SetScript("OnEvent", function()
     local season2exp10 = LibGearData:SetSeason(2, 11)
     AddDataDebug(season2exp10, "season2exp10")
     AddDataDebug(LibGearData:GetCurrentSeason(), "Aktive Season")
-    AddDataDebug(season2exp10.data, "season2exp10")
+    AddDataDebug(season2exp10.data, "season2exp11")
     AddDataDebug(season2exp10:GetCurrentSeason(),
                  "Aktive Season nach SetSeason(2, 11)")
     AddDataDebug(LibGearData:GetCurrentSeason(), "Aktive Season")
 
-    AddDataDebug(LibGearData.data.dungeons, "LibGearData")
-    AddDataDebug(LibGearData:GetData("dungeons"), "GetData(dungeon)")
 
     AddDataDebug(LibGearData:GetData("delves"), "GetData(delves)")
     AddDataDebug(LibGearData:GetData("raid"), "GetData(raid)")
