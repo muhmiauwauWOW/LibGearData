@@ -264,3 +264,67 @@ if ns.seasons then
     end
 end
 
+
+
+
+--@do-not-package@
+
+-- local loadaddon = CreateFrame("Frame")
+-- loadaddon:RegisterEvent("PLAYER_ENTERING_WORLD")
+-- loadaddon:SetScript("OnEvent", function(event,name)
+
+
+--      -- extract delves
+--     C_Timer.After(5,function ()
+--         if not WeeklyRewardsFrame then
+--             WeeklyRewards_LoadUI();
+--         end
+
+--         -- local results = {}
+--         -- for i = 0, 10, 1 do
+
+--         --     local hasData, nextActivityTierID, nextLevel, nextItemLevel = C_WeeklyRewards.GetNextActivitiesIncrease(0, i)
+--         --     print(hasData, i, nextActivityTierID, nextLevel, nextItemLevel)
+--         --     if hasData then
+--         --         table.insert(results, {
+--         --             level = i + 1,
+--         --             -- hasData = hasData,
+--         --             -- nextActivityTierID = nextActivityTierID,
+--         --             -- nextLevel = nextLevel,
+--         --             ilvl = nextItemLevel
+--         --         })
+--         --     end
+--         -- end
+
+--         -- DevTool:AddData(results, "weeklyRewardsData")
+
+
+
+--         -- extract delves
+
+--         local results = {}
+--         for i = 0, 8, 1 do
+--             local hasData, nextActivityTierID, nextLevel, nextItemLevel = C_WeeklyRewards.GetNextActivitiesIncrease(42, i)
+--             table.insert(results, {
+--                 level = i + 1,
+--                 -- hasData = hasData,
+--                 -- nextActivityTierID = nextActivityTierID,
+--                 -- nextLevel = nextLevel,
+--                 ilvl = nextItemLevel
+--             })
+--         end
+
+--         DevTool:AddData(results, "delves 2-8")
+--     end)
+ 
+-- end)
+
+--@end-do-not-package@
+
+
+
+
+
+
+
+
