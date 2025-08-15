@@ -84,9 +84,9 @@ ns.seasons["11.3"] = {
 
 
     delves = {
-        { tier = 1, bountiful = 655, vault = 655, crests = {1} },
-        { tier = 2, bountiful = 658, vault = 668 },
-        { tier = 3, bountiful = 662, vault = 671 },
+        { tier = 1, bountiful = 655, vault = 668, crests = {1} },
+        { tier = 2, bountiful = 658, vault = 671 },
+        { tier = 3, bountiful = 662, vault = 675 },
         { tier = 4, bountiful = 665, delversBounty = 671, vault = 681, crests = {1, 2} },
         { tier = 5, bountiful = 668, delversBounty = 678, vault = 681 },
         { tier = 6, bountiful = 671, delversBounty = 684, vault = 688, crests = {2, 3} },
