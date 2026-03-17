@@ -5,9 +5,6 @@
 	<Script file="localization.lua"/>
 	<Script file="class.lua"/>
 
-
-	<Script file="data/11_season_2.lua"/>
-	<Script file="data/11_season_3.lua"/>
 	<Script file="data/12_season_1.lua"/>
 
 
