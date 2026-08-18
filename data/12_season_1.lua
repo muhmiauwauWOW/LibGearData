@@ -13,7 +13,7 @@ ns.seasons["12.1"] = {
     
     -- Version validity (WoW interface versions)
     validFrom = 120000,
-    validTo = 120300,
+    validTo = 120099,
     
 
     tracks = {
@@ -35,10 +35,6 @@ ns.seasons["12.1"] = {
     
 
     data = {
-        -- [220] = {tracks = {{1, 1}}},
-        -- [224] = {tracks = {{1, 2}}},
-        -- [227] = {tracks = {{1, 3}}},
-        -- [2] = {tracks = {{1, 4}}},
         [220] = {tracks = {{2, 1}}},
         [224] = {tracks = {{2, 2}}},
         [227] = {tracks = {{2, 3}}},

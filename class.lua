@@ -170,6 +170,7 @@ function class:GetHighestTrack(ilvl)
 end
 
 function class:GetHighestTrackString(ilvl)
+    if not ilvl then return "-" end
     local tracks = self:GetTracksByItemLevel(ilvl)
     if not tracks or #tracks == 0 then return "unknown" end
 
@@ -180,6 +181,7 @@ function class:GetHighestTrackString(ilvl)
 
     local localizedName = self:GetTrackName(track.name)
     local maxRank = track.maxRank
+
 
     return string.format("%s %d/%d", localizedName, rank, maxRank)
 end

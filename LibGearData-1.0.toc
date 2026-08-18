@@ -1,4 +1,4 @@
-## Interface: 120007
+## Interface: 120100
 ## Title: LibGearData
 ## Notes: Library for World of Warcraft gear track and crest data
 ## Author: muhmiauwau
