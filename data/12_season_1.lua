@@ -7,7 +7,7 @@ if not ns.seasons then
 end
 
 ns.seasons["12.1"] = {
-    name = "Mightnight - Season 1",
+    name = "Midnight - Season 1",
     expansion = 12,
     season = 1,
     
